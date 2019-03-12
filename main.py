@@ -8,8 +8,10 @@ final_size = int(input("Enter target height of final image (pixel values between
 small_image_size = int(input("Enter the size of small images (pixel values between 50-200 for best results): "))
 image_list = []
 image_brightness_list = []
-new_image = Image.new('RGB', (final_size, final_size))
+new_image = Image.new('RGBA', (final_size, final_size))
 large_image = Image.open(large_image_path)
+large_image_alpha = Image.open(large_image_path)
+large_image_alpha = large_image_alpha.convert('RGBA')
 scale = int(final_size/small_image_size)
 large_image_pixels = []
 
@@ -79,10 +81,11 @@ def paste():
         for y in range(0, h, int(small_image_size)):
             new_image.paste(choice_list[count], (x, y, x+int(choice_list[count].size[0]), y+int(choice_list[count].size[1])))
             count += 1
-            
 
 print("Resizing large image...")
 large_image = resize_crop(large_image, scale)
+large_image_alpha = resize_crop(large_image_alpha, final_size)
+large_image_alpha = large_image_alpha.resize((final_size, final_size))
 print("Getting pixel values from large image...")
 get_target_pixels(large_image)
 print("Resizing and gathering pixel data from small images...")
@@ -91,6 +94,6 @@ print("Calculating matches for pixels...")
 get_choices()
 print("pasting images into final image...")
 paste()
+final_image = Image.blend(large_image_alpha, new_image, .65)
 print("Finishing!")
-##new_image.show()
-new_image.save("result.jpg")
+final_image.save("result.png")
